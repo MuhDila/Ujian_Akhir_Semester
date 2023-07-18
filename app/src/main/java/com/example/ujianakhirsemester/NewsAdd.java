@@ -180,7 +180,7 @@ public class NewsAdd extends AppCompatActivity {
             thread.start();
         }
     }
-    private void upload(String title, String description){
+    private void upload(String title, String description) {
         progressDialog.show();
         gambar.setDrawingCacheEnabled(true);
         gambar.buildDrawingCache();
@@ -190,25 +190,29 @@ public class NewsAdd extends AppCompatActivity {
         byte[] data = baos.toByteArray();
 
         FirebaseStorage storage = FirebaseStorage.getInstance();
-        StorageReference referenceStorage = storage.getReference("images")
-                .child("IMG"+ new Date().getTime() + ".jpg");
+        StorageReference referenceStorage = storage.getReference("image")
+                .child("IMG" + new Date().getTime() + ".jpg");
         UploadTask uploadTask = referenceStorage.putBytes(data);
         uploadTask.addOnFailureListener(new OnFailureListener() {
             @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(getApplicationContext(), "Data gagal diupload", Toast.LENGTH_LONG);
+            public void onFailure(@NonNull Exception exception) {
+                // Handle unsuccessful uploads
+                Toast.makeText(getApplicationContext() ,"Data gagal diupload",
+                        Toast.LENGTH_LONG).show();
                 progressDialog.dismiss();
             }
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
                 taskSnapshot.getMetadata().getReference().getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
                     @Override
                     public void onComplete(@NonNull Task<Uri> task) {
                         saveData(title, description, task.getResult().toString());
                     }
                 });
-                Toast.makeText(getApplicationContext(), "Data berhasil diupload", Toast.LENGTH_LONG);
+                Toast.makeText(getApplicationContext() ,"Data berhasil diupload",
+                        Toast.LENGTH_LONG).show();
                 progressDialog.dismiss();
             }
         });
