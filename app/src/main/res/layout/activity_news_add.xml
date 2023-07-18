@@ -12,6 +12,13 @@
         android:layout_margin="10dp"
         android:orientation="vertical"
         tools:ignore="MissingConstraints">
+        <ImageView
+            android:id="@+id/imgNews"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:background="#ccc"
+            android:scaleType="centerInside"
+            android:layout_gravity="center"/>
         <EditText
             android:id="@+id/title"
             android:layout_margin="8dp"

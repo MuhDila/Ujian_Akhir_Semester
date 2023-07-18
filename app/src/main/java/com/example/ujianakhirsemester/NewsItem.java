@@ -1,10 +1,19 @@
 package com.example.ujianakhirsemester;
 
 public class NewsItem {
-    private String id, judul, desc;
-    public NewsItem(String judul, String desc){
+    private String id, judul, desc, image;
+    public NewsItem(String judul, String desc, String image){
         this.judul = judul;
         this.desc = desc;
+        this.image = image;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 
     public String getId() {

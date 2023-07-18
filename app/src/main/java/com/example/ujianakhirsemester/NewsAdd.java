@@ -1,11 +1,16 @@
 package com.example.ujianakhirsemester;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -14,10 +19,22 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -29,6 +46,7 @@ public class NewsAdd extends AppCompatActivity {
     FirebaseFirestore dbNews = FirebaseFirestore.getInstance();
     ProgressDialog progressDialog;
     String id = "";
+    ImageView gambar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +56,13 @@ public class NewsAdd extends AppCompatActivity {
         title = findViewById(R.id.title);
         desc = findViewById(R.id.desc);
         saveNews = findViewById(R.id.btnAdd);
+        gambar = findViewById(R.id.imgNews);
+        gambar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                selectImage();
+            }
+        });
 
         progressDialog = new ProgressDialog(NewsAdd.this);
         progressDialog.setTitle("Sedang diproses...");
@@ -46,7 +71,8 @@ public class NewsAdd extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (title.getText().length() > 0 && desc.getText().length() > 0){
-                    saveData(title.getText().toString(), desc.getText().toString());
+//                    saveData(title.getText().toString(), desc.getText().toString());
+                    upload(title.getText().toString(), desc.getText().toString());
                 } else{
                     Toast.makeText(getApplicationContext(), "Semua data harus diisi",
                             Toast.LENGTH_LONG).show();
@@ -58,13 +84,15 @@ public class NewsAdd extends AppCompatActivity {
             id = updateOption.getStringExtra("id");
             title.setText(updateOption.getStringExtra("title"));
             desc.setText(updateOption.getStringExtra("description"));
+            Glide.with(getApplicationContext()).load(updateOption.getStringExtra("img")).into(gambar);
         }
     }
 
-    private void saveData(String title, String description){
+    private void saveData(String title, String description, String Gambar){
         Map<String, Object> mapNews = new HashMap<>();
         mapNews.put("title", title);
         mapNews.put("desc", description);
+        mapNews.put("img", Gambar);
 
         progressDialog.show();
         if (id!=null){
@@ -106,5 +134,83 @@ public class NewsAdd extends AppCompatActivity {
                     });
         }
         progressDialog.dismiss();
+    }
+    private void selectImage(){
+        CharSequence[] optionAction = {"Take photo", "Choose from library", "Cancel"};
+        AlertDialog.Builder builder = new AlertDialog.Builder(NewsAdd.this);
+        builder.setTitle(R.string.app_name);
+        builder.setIcon(R.mipmap.ic_launcher);
+        builder.setItems(optionAction,(dialogInterface, i) -> {
+            if (optionAction[i].equals("Take photo")){
+                Intent take = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                startActivityForResult(take, 10);
+            } else if (optionAction[i].equals("Choose from library")){
+                Intent pick = new Intent(Intent.ACTION_PICK);
+                pick.setType("image/*");
+                startActivityForResult(Intent.createChooser(pick, "Select Image"),20);
+            } else{
+                dialogInterface.dismiss();
+            }
+        });
+        builder.show();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 20 && requestCode == RESULT_OK && data!=null){
+            final Uri path = data.getData();
+            Thread thread = new Thread(()->{
+                try {
+                    InputStream inputStream = getContentResolver().openInputStream(path);
+                    Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+                    gambar.post(()->{gambar.setImageBitmap(bitmap);});
+                }catch (IOException e){
+                    e.printStackTrace();
+                }
+            });
+            thread.start();
+        }
+        if (requestCode == 10 && resultCode == RESULT_OK){
+            final Bundle extras = data.getExtras();
+            Thread thread = new Thread(()->{
+                Bitmap bitmap = (Bitmap) extras.get("data");
+                gambar.post(()->{gambar.setImageBitmap(bitmap);});
+            });
+            thread.start();
+        }
+    }
+    private void upload(String title, String description){
+        progressDialog.show();
+        gambar.setDrawingCacheEnabled(true);
+        gambar.buildDrawingCache();
+        Bitmap bitmap = ((BitmapDrawable) gambar.getDrawable()).getBitmap();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        byte[] data = baos.toByteArray();
+
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference referenceStorage = storage.getReference("images")
+                .child("IMG"+ new Date().getTime() + ".jpg");
+        UploadTask uploadTask = referenceStorage.putBytes(data);
+        uploadTask.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(getApplicationContext(), "Data gagal diupload", Toast.LENGTH_LONG);
+                progressDialog.dismiss();
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                taskSnapshot.getMetadata().getReference().getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Uri> task) {
+                        saveData(title, description, task.getResult().toString());
+                    }
+                });
+                Toast.makeText(getApplicationContext(), "Data berhasil diupload", Toast.LENGTH_LONG);
+                progressDialog.dismiss();
+            }
+        });
     }
 }

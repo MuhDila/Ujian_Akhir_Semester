@@ -68,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
                                 update.putExtra("id", newsItems.get(pos).getId());
                                 update.putExtra("title", newsItems.get(pos).getJudul());
                                 update.putExtra("description", newsItems.get(pos).getDesc());
+                                update.putExtra("img", newsItems.get(pos).getImage());
                                 startActivity(update);
                                 break;
                             case 1: deleteData(newsItems.get(pos).getId());
@@ -114,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
                             newsItems.clear();
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 NewsItem item = new NewsItem(document.getString("title"),
-                                        document.getString("desc"));
+                                        document.getString("desc"), document.getString("img"));
                                 item.setId(document.getId());
                                 newsItems.add(item);
                                 Log.d("data", document.getId() + " => " + document.getData());

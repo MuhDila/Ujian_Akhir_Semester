@@ -9,6 +9,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
+
 import java.util.List;
 public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsHolder> {
     private List<NewsItem> newsItems;
@@ -38,6 +41,7 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsHolder> {
         NewsItem item = newsItems.get(position);
         holder.judul.setText(item.getJudul());
         holder.desc.setText(item.getDesc());
+        Glide.with(holder.imageView.getContext()).load(item.getImage()).into(holder.imageView);
     }
     @Override
     public int getItemCount() {
@@ -50,6 +54,7 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsHolder> {
             super(itemView);
             judul = itemView.findViewById(R.id.title);
             desc = itemView.findViewById(R.id.desc);
+            imageView = itemView.findViewById(R.id.image);
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
