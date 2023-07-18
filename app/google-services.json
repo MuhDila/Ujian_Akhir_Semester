@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1094625746916",
+    "project_id": "ujian-akhir-semester-b90c1",
+    "storage_bucket": "ujian-akhir-semester-b90c1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1094625746916:android:6a2f371570847a90a831f1",
+        "android_client_info": {
+          "package_name": "com.example.ujianakhirsemester"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1094625746916-t3ek8l1nu6lq7vkie12g7v8pgknq90ou.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.ujianakhirsemester",
+            "certificate_hash": "d14d597705096b84177e3d1d094d01a91cdf57a6"
+          }
+        },
+        {
+          "client_id": "1094625746916-c8reqfu3o7a3ommcep2g30q638mir1gp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD6l2Hx6fXOfls2f5mHRk-y0ZmOlhodmiA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1094625746916-c8reqfu3o7a3ommcep2g30q638mir1gp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
