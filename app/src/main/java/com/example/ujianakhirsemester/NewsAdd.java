@@ -72,6 +72,7 @@ public class NewsAdd extends AppCompatActivity {
             public void onClick(View view) {
                 if (title.getText().length() > 0 && desc.getText().length() > 0){
 //                    saveData(title.getText().toString(), desc.getText().toString());
+//                    upload(title.getText().toString(), desc.getText().toString());
                     upload(title.getText().toString(), desc.getText().toString());
                 } else{
                     Toast.makeText(getApplicationContext(), "Semua data harus diisi",
@@ -135,31 +136,76 @@ public class NewsAdd extends AppCompatActivity {
         }
         progressDialog.dismiss();
     }
+//    private void selectImage(){
+//        CharSequence[] optionAction = {"Take photo", "Choose from library", "Cancel"};
+//        AlertDialog.Builder builder = new AlertDialog.Builder(NewsAdd.this);
+//        builder.setTitle(R.string.app_name);
+//        builder.setIcon(R.mipmap.ic_launcher);
+//        builder.setItems(optionAction,(dialogInterface, i) -> {
+//            if (optionAction[i].equals("Take photo")){
+//                Intent take = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+//                startActivityForResult(take, 10);
+//            } else if (optionAction[i].equals("Choose from library")){
+//                Intent pick = new Intent(Intent.ACTION_PICK);
+//                pick.setType("image/*");
+//                startActivityForResult(Intent.createChooser(pick, "Select Image"),20);
+//            } else{
+//                dialogInterface.dismiss();
+//            }
+//        });
+//        builder.show();
+//    }
     private void selectImage(){
-        CharSequence[] optionAction = {"Take photo", "Choose from library", "Cancel"};
+        CharSequence[] optionAtion = {"Take photo", "Choose from library", "Cancel"};
         AlertDialog.Builder builder = new AlertDialog.Builder(NewsAdd.this);
         builder.setTitle(R.string.app_name);
         builder.setIcon(R.mipmap.ic_launcher);
-        builder.setItems(optionAction,(dialogInterface, i) -> {
-            if (optionAction[i].equals("Take photo")){
+        builder.setItems(optionAtion,(dialogInterface, i) -> {
+            if (optionAtion[i].equals("Take photo")){
                 Intent take = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 startActivityForResult(take, 10);
-            } else if (optionAction[i].equals("Choose from library")){
+            } else if (optionAtion[i].equals("Choose from library")) {
                 Intent pick = new Intent(Intent.ACTION_PICK);
                 pick.setType("image/*");
-                startActivityForResult(Intent.createChooser(pick, "Select Image"),20);
-            } else{
+                startActivityForResult(Intent.createChooser(pick, "Select Image"), 20);
+            }else {
                 dialogInterface.dismiss();
             }
         });
         builder.show();
     }
 
+//    @Override
+//    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//        if (requestCode == 20 && requestCode == RESULT_OK && data!=null){
+//            final Uri path = data.getData();
+//            Thread thread = new Thread(()->{
+//                try {
+//                    InputStream inputStream = getContentResolver().openInputStream(path);
+//                    Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+//                    gambar.post(()->{gambar.setImageBitmap(bitmap);});
+//                }catch (IOException e){
+//                    e.printStackTrace();
+//                }
+//            });
+//            thread.start();
+//        }
+//        if (requestCode == 10 && resultCode == RESULT_OK){
+//            final Bundle extras = data.getExtras();
+//            Thread thread = new Thread(()->{
+//                Bitmap bitmap = (Bitmap) extras.get("data");
+//                gambar.post(()->{gambar.setImageBitmap(bitmap);});
+//            });
+//            thread.start();
+//        }
+//    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 20 && requestCode == RESULT_OK && data!=null){
-            final Uri path = data.getData();
+        final Uri path = data.getData();
+        if (requestCode == 20 && resultCode == RESULT_OK && data!=null){
             Thread thread = new Thread(()->{
                 try {
                     InputStream inputStream = getContentResolver().openInputStream(path);
@@ -170,7 +216,9 @@ public class NewsAdd extends AppCompatActivity {
                 }
             });
             thread.start();
+
         }
+
         if (requestCode == 10 && resultCode == RESULT_OK){
             final Bundle extras = data.getExtras();
             Thread thread = new Thread(()->{
@@ -178,9 +226,49 @@ public class NewsAdd extends AppCompatActivity {
                 gambar.post(()->{gambar.setImageBitmap(bitmap);});
             });
             thread.start();
+
         }
     }
-    private void upload(String title, String description) {
+
+//    private void upload(String title, String description) {
+//        progressDialog.show();
+//        gambar.setDrawingCacheEnabled(true);
+//        gambar.buildDrawingCache();
+//        Bitmap bitmap = ((BitmapDrawable) gambar.getDrawable()).getBitmap();
+//        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+//        byte[] data = baos.toByteArray();
+//
+//        FirebaseStorage storage = FirebaseStorage.getInstance();
+//        StorageReference referenceStorage = storage.getReference("image")
+//                .child("IMG" + new Date().getTime() + ".jpg");
+//        UploadTask uploadTask = referenceStorage.putBytes(data);
+//        uploadTask.addOnFailureListener(new OnFailureListener() {
+//            @Override
+//            public void onFailure(@NonNull Exception exception) {
+//                // Handle unsuccessful uploads
+//                Toast.makeText(getApplicationContext() ,"Data gagal diupload",
+//                        Toast.LENGTH_LONG).show();
+//                progressDialog.dismiss();
+//            }
+//        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+//            @Override
+//            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+//                // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
+//                taskSnapshot.getMetadata().getReference().getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<Uri> task) {
+//                        saveData(title, description, task.getResult().toString());
+//                    }
+//                });
+//                Toast.makeText(getApplicationContext() ,"Data berhasil diupload",
+//                        Toast.LENGTH_LONG).show();
+//                progressDialog.dismiss();
+//            }
+//        });
+//    }
+
+    private void upload(String title, String description){
         progressDialog.show();
         gambar.setDrawingCacheEnabled(true);
         gambar.buildDrawingCache();
@@ -190,31 +278,31 @@ public class NewsAdd extends AppCompatActivity {
         byte[] data = baos.toByteArray();
 
         FirebaseStorage storage = FirebaseStorage.getInstance();
-        StorageReference referenceStorage = storage.getReference("image")
-                .child("IMG" + new Date().getTime() + ".jpg");
+        StorageReference referenceStorage = storage.getReference("images")
+                .child("IMG"+new Date().getTime() + ".jpg");
         UploadTask uploadTask = referenceStorage.putBytes(data);
         uploadTask.addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception exception) {
                 // Handle unsuccessful uploads
-                Toast.makeText(getApplicationContext() ,"Data gagal diupload",
-                        Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "Data gagal diupload", Toast.LENGTH_LONG).show();
                 progressDialog.dismiss();
             }
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
+                // ...
                 taskSnapshot.getMetadata().getReference().getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
                     @Override
                     public void onComplete(@NonNull Task<Uri> task) {
                         saveData(title, description, task.getResult().toString());
                     }
                 });
-                Toast.makeText(getApplicationContext() ,"Data berhasil diupload",
-                        Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "Data berhasil diupload", Toast.LENGTH_LONG).show();
                 progressDialog.dismiss();
             }
         });
     }
+
 }
